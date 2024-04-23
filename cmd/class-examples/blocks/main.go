@@ -22,61 +22,52 @@ func newTemplate() *Templates {
 	}
 }
 
-// type Block struct {
-//     Id int
-// }
+type Contact struct {
+    Name string
+    Email string
+}
 
-// type Blocks struct {
-//     Start int
-//     Next int
-//     More bool
-//     Blocks []Block
-// }
+func newContact(name, email string) Contact{
+    return Contact{
+        Name: name,
+        Email: email,
+    }
+}
 
-type Count struct {
-    Count int
+type Contacts = []Contact
+
+type Data struct {
+    Contacts Contacts
+}
+
+func newData() Data {
+    return Data{
+        Contacts: []Contact{
+            newContact("Sawa", "sg@gmail.com"),
+            newContact("Sawa2", "sg@gmail.com"),
+        },
+    }
 }
 
 func main() {
 	e := echo.New()
-    e.Renderer = newTemplate()
     e.Use(middleware.Logger())
 
-    count := Count {Count: 0}
+    data := newData()
+    e.Renderer = newTemplate()
 
     e.GET("/", func(c echo.Context) error {
-        return c.Render(200, "index", count)
+        return c.Render(200, "index", data)
     })
 
-    e.POST("/count", func(c echo.Context) error {
-        count.Count++
-        return c.Render(200, "count", count)
+    e.POST("/contacts", func(c echo.Context) error {
+        name := c.FormValue("name")
+        email := c.FormValue("email")
+
+        data.Contacts = append(data.Contacts, newContact(name, email))
+        return c.Render(200, "index", data)
     })
 
-
-    // e.GET("/blocks", func(c echo.Context) error {
-    //     startStr := c.QueryParam("start")
-    //     start, err := strconv.Atoi(startStr)
-    //     if err != nil {
-    //         start = 0
-    //     }
-
-    //     blocks := []Block{}
-    //     for i := start; i < start + 10; i++ {
-    //         blocks = append(blocks, Block{Id: i})
-    //     }
-
-    //     template := "blocks"
-    //     if start == 0 {
-    //         template = "blocks-index"
-    //     }
-    //     return c.Render(http.StatusOK, template, Blocks{
-    //         Start: start,
-    //         Next: start + 10,
-    //         More: start + 10 < 100,
-    //         Blocks: blocks,
-    //     });
-    // });
 
     e.Logger.Fatal(e.Start(":3000"))
 }

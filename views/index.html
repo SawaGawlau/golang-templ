@@ -8,14 +8,28 @@
         <script src="https://unpkg.com/htmx.org@1.7.0/dist/htmx.min.js"></script>
     </head>
     <body>
-        <div id="count">
-            {{ template "count" . }}
-        </div> 
-        <button hx-target="#count" hx-post="/count">Count</button>
+        {{ template "form" . }}
+        <hr />
+        {{ template "display" . }}
     </body>
 </html>
 {{ end }}
 
-{{ block "count" .}}
-    Count {{ .Count }}
+{{ block "form" .}}
+<form hx-target="body" hx-post="/contacts">
+    <input type="text" name="name" placeholder="name">
+    <input type="text" name="email" placeholder="email">
+    <button type="submit">Create Contact</button>
+</form>
+{{ end }}
+
+{{ block "display" .}}
+    <div style="display: flex; flex-direction: column">
+    {{ range .Contacts }}
+        <div>
+            Name: <span>{{ .Name }}</span>
+            Email: <span>{{ .Email }}</span>
+        </div>
+    {{ end }}
+    </div>
 {{ end }}
